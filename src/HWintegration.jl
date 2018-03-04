@@ -1,7 +1,7 @@
 
 module HWintegration
 
-	const A_SOL = -18  # enter your analytic solution. -18 is wrong.
+	const A_SOL = -4
 
 	# imports
 	using FastGaussQuadrature
@@ -18,7 +18,14 @@ module HWintegration
 
 	# demand function
 
+    q(x)=2/sqrt(x)
+
 	# gauss-legendre adjustment factors for map change
+
+    a = 4
+    b = 1
+    coef1 = (a-b)/2
+    coef2 = (a+b)/2
 
 	# eqm condition for question 2
 
@@ -35,12 +42,12 @@ module HWintegration
 
 	function question_1c(n)
 
-		
+
 	end
 
 	function question_1d(n)
 
-	
+
 
 	end
 
@@ -48,18 +55,18 @@ module HWintegration
 
 	function question_2a(n)
 
-		
+
 
 	end
 
 	function question_2b(n)
 
-		
+
 	end
 
 	function question_2bonus(n)
 
-		
+
 
 
 	end

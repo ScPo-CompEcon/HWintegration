@@ -1,0 +1,23 @@
+a = 4
+b = 1
+coef1 = (a-b)/2
+coef2 = (a+b)/2
+
+n = 10,15,20
+
+q(x)=2/sqrt(x)
+q(4)
+
+q_trans(x) = coef1 * 2/sqrt(coef1*x+coef2)
+
+rule = gausslegendre(10)
+
+nodes = values(rule)[1,]
+weights = values(rule)[2,]
+weighted_q = weights .* map(q_trans, nodes)
+
+plot(nodes, weighted_q)
+plot!(q_trans)
+
+approx = sum(weights .* weighted_q)
+error = 4 - approx
