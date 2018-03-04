@@ -1,7 +1,7 @@
 
 module HWintegration
 
-	const A_SOL = -4
+	const A_SOL = 4
 
 	# imports
 	using FastGaussQuadrature
@@ -35,21 +35,67 @@ module HWintegration
 	end
 
 
-	function question_1b(n)
+    function question_1b(n)
+        q_trans(x) = coef1 * 2/sqrt(coef1*x+coef2)
+        rule = gausslegendre(n)
+        nodes = values(rule)[1,]
+        weights = values(rule)[2,]
+        weighted_q = weights .* map(q_trans, nodes)
+        approx = sum(weighted_q)
+        println("The approximated change in consumer surplus when n=$n is $approx.")
+        println("The distance between the true result and the approximation when n=$n is ", 4 - approx)
+        scatter(nodes, map(q_trans, nodes), label = "Gauss-Legendre", xlab ="Integration nodes", ylab="Function Value" )
+        plot!(q_trans, label = "Scaled Demand Function")
+    end
 
-	end
+
+    function question_1c(n)
+
+        function rand_uniform(a, b, n)
+            a + rand(n)*(b - a)
+        end
+
+        q_trans(x) = coef1 * 2/sqrt(coef1*x+coef2)
+        random = rand_uniform(-1, 1, n)
+        x = sort(random)
+        y = map(q_trans, x)
+        approx = sum(y)/n
+        println("Results using Monte Carlo integration : ")
+        println("The approximated change in consumer surplus when n=$n is $approx.")
+        println("The distance between the true result and the approximation when n=$n is ", 4 - approx)
+        scatter!(x, y, label = "Monte Carlo", xlab ="Integration nodes", ylab="Function Value" )
+
+    end
 
 
-	function question_1c(n)
+    function question_1d(n)
 
+        #= We define a function Sobol that generates the sobol
+        sequence in a usable way =#
 
-	end
+        function sobol(j)
+           s = ScaledSobolSeq(1, [-1.0], [1.0])
+           seq = hcat([next(s) for i in 1:j]...)
+           a = []
+            for i in 1:j
+                push!(a, seq[1, i])
+            end
+        return a
+        end
 
-	function question_1d(n)
+        q_trans(x) = coef1 * 2/sqrt(coef1*x+coef2)
 
+        rand = sobol(n)
+        x = sort(rand)
+        y = map(q_trans, x)
 
+        approx = sum(y)/n
+        println("Results using Quasi Monte Carlo integration : ")
+        println("The approximated change in consumer surplus when n=$n is $approx.")
+        println("The distance between the true result and the approximation when n=$n is ", 4 - approx)
+        scatter!(x, y, label = "Q. Monte Carlo", xlab ="Integration nodes", ylab="Function Value" )
 
-	end
+    end
 
 	# question 2
 
@@ -76,16 +122,23 @@ module HWintegration
 		info("Running all of HWintegration")
 		info("question 1:")
 		plot_q1()
-		for n in (10,15,20)
-			info("============================")
-			info("now showing results for n=$n")
-			# info("question 1b:")
-			# question_1b(n)	# make sure your function prints some kind of result!
-			# info("question 1c:")
-			# question_1c(n)
-			# info("question 1d:")
-			# question_1d(n)
-			# println("")
+        info("question 2:")
+        plotlyjs()
+        plots = []
+        for n in (10,15,20)
+            info("============================")
+            info("now showing results for n=$n")
+            info("question 1b:")
+            question_1b(n)
+            info("question 1c:")
+            question_1c(n)
+            info("question 1d:")
+            push!(plots, question_1d(n))
+        end
+        plot(plots[1], plots[2], plots[3])
+
+
+            info("question 2:")
 			info("question 2a:")
 			q2 = question_2a(n)
 			println(q2)
