@@ -104,7 +104,6 @@ module HWintegration
 	# question 2
 
 	function question_2a(n)
-
         rule = gausshermite(n)
         nodes = Any[]
         push!(nodes,repeat(rule[1],inner=[1],outer=[n]))
@@ -113,30 +112,28 @@ module HWintegration
         nodes[1] = nodes[1]/sqrt(var(nodes[1]))
         nodes[2] = nodes[2]/sqrt(var(nodes[2]))
         weights = kron(rule[2],rule[2])
-        points = DataFrame(nodes,[:dim1,:dim2])
-        points[:weights] = weights
+        points = DataFrame(weights = weights)
+        points[:dim1] = nodes[1]
+        points[:dim2] = nodes[2]
         theta_unnorm = hcat(points[2], points[3])
 
-        # Making theta 1 and 2 such that they have the proper variance and correlation
-        L = 0.1 * [1/sqrt(2) 0; 1/sqrt(2) sqrt(2)]
+        #= Making log(theta1) and log(theta2) such that
+        var(log(theta1)) = 0.01
+        var(log(theta2)) = 0.02
+        cov(log(theta1), log(theta2)) = 0.01 =#
         dim = n^2
-        theta_norm = (L*theta_unnorm')'
-        theta_1_norm = [theta_norm[1:dim,]]
-        theta_2_norm = [theta_norm[dim+1:dim*2,]]
-        points[:theta_1_norm] = theta_1_norm[1]
-        points[:theta_2_norm] = theta_2_norm[1]
+        SIG = [sqrt(0.01) 0 ; sqrt(0.01) sqrt(0.01)]
+        theta = (SIG*theta_unnorm')'
+        points[:theta_1] = exp.(theta[1:dim,])
+        points[:theta_2] = exp.(theta[dim+1:dim*2,])
 
         # Generating price vector
 
         price = []
         for i in 1:dim
-            a = points[:theta_1_norm][i]
-            b = points[:theta_2_norm][i]
-            if (a<0) && (b<0)
-                push!(price,0)
-            else
-                push!(price, fzero(x -> a/x + b/sqrt(x) - 2, 0, 10))
-            end
+            a = points[:theta_1][i]
+            b = points[:theta_2][i]
+            push!(price, fzero(x -> a/x + b/sqrt(x) - 2, 0, 10))
         end
 
         points[:price] = price
@@ -154,8 +151,8 @@ module HWintegration
         theta_2 = randn(n)
         theta_unnorm = hcat(theta_1, theta_2)
         theta_norm = (L*theta_unnorm')'
-        theta_1_norm = [theta_norm[1:n,]]
-        theta_2_norm = [theta_norm[n+1:n*2,]]
+        theta_1_norm = [exp.(theta_norm[1:n,])]
+        theta_2_norm = [exp.(theta_norm[n+1:n*2,])]
         points = DataFrame(theta_1_norm = theta_1_norm[1], theta_2_norm = theta_2_norm[1])
 
         price = []
@@ -200,8 +197,8 @@ module HWintegration
         dim = n^2
         theta_1_norm = [theta_norm[1:dim,]]
         theta_2_norm = [theta_norm[dim+1:dim*2,]]
-        points[:theta_1_norm] = theta_1_norm[1]
-        points[:theta_2_norm] = theta_2_norm[1]
+        points[:theta_1_norm] = exp.(theta_1_norm[1])
+        points[:theta_2_norm] = exp.(theta_2_norm[1])
         price = []
             for i in 1:dim
                 a = points[:theta_1_norm][i]
@@ -213,8 +210,8 @@ module HWintegration
                     end
             end
         points[:price] = price
-        approx_E = sum(points[:price])/n
-        approx_V = sum( (points[:price]- approx_E) .^ 2 ) / n
+        approx_E = sum(points[:price])/dim
+        approx_V = sum( (points[:price]- approx_E) .^ 2 ) / dim
         println("When n = $n :")
         println("The approximated expected price is $approx_E.")
         println("The approximated expected variance is $approx_V")
