@@ -78,17 +78,19 @@ module HWintegration
 	# question 2
 
 	function question_2a(n)
-
+        println("I could not answer this question")
 
 
 	end
 
 	function question_2b(n)
+        println("I could not answer this question")
 
 
 	end
 
 	function question_2bonus(n)
+        println("I could not answer this question")
 
 
 
