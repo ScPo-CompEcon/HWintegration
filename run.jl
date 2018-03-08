@@ -1,4 +1,6 @@
 
 
-include("src/HW_int.jl")	# load our code
+include("src/HWintegration.jl")	# load our code
 HWintegration.runall()
+
+plot(p...)
