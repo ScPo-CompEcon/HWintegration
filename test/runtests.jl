@@ -10,8 +10,8 @@ using Base.Test
 
 
 		@testset "check gauss adjustment" begin
-			@test HWintegration.coef1 == 3/2
-			@test HWintegration.coef2 == 5/2
+			@test HWintegration.coef1 == 1.5
+			@test HWintegration.coef2 == 2.5
 		end
 
 		@testset "eqm condition for Q2" begin
